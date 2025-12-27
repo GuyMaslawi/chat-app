@@ -1,0 +1,2 @@
+export { RoomsList } from './RoomsList';
+
