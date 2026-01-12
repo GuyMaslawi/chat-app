@@ -12,7 +12,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ) {
     const clientID = configService.get<string>('GOOGLE_CLIENT_ID') || 'dummy';
     const clientSecret = configService.get<string>('GOOGLE_CLIENT_SECRET') || 'dummy';
-    const callbackURL = configService.get<string>('GOOGLE_CALLBACK_URL') || '/auth/google/callback';
+    const serverUrl = configService.get<string>('SERVER_URL') || 'http://localhost:3001';
+    const callbackURL = configService.get<string>('GOOGLE_CALLBACK_URL') || `${serverUrl}/auth/google/callback`;
     
     super({
       clientID,
@@ -28,15 +29,30 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback
   ): Promise<any> {
-    const { name, emails, photos } = profile;
-    const user = await this.authService.validateOAuthUser({
-      email: emails[0].value,
-      name: name?.givenName && name?.familyName ? `${name.givenName} ${name.familyName}` : name?.displayName || emails[0].value.split('@')[0],
-      photoUrl: photos?.[0]?.value,
-      provider: 'google',
-      providerId: profile.id,
-    });
-    done(null, user);
+    try {
+      const { name, emails, photos } = profile;
+      
+      if (!emails || !emails[0] || !emails[0].value) {
+        return done(new Error('Email is required'), null);
+      }
+
+      if (!profile.id) {
+        return done(new Error('Provider ID is required'), null);
+      }
+
+      const user = await this.authService.validateOAuthUser({
+        email: emails[0].value,
+        name: name?.givenName && name?.familyName 
+          ? `${name.givenName} ${name.familyName}` 
+          : name?.displayName || emails[0].value.split('@')[0],
+        photoUrl: photos?.[0]?.value,
+        provider: 'google',
+        providerId: profile.id,
+      });
+      done(null, user);
+    } catch (error) {
+      done(error, null);
+    }
   }
 }
 

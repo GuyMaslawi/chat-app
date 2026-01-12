@@ -15,7 +15,7 @@ import { AppGateway } from './app.gateway';
     MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/chat-app'),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secret',
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '15m' },
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '10m' },
     }),
     AuthModule,
     RoomsModule,

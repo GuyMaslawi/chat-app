@@ -6,6 +6,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { GlobalStyles } from '@mui/material';
 import { useState, useEffect, createContext, useContext } from 'react';
 import { lightTheme, darkTheme } from './theme';
+import { globalStyles } from './providers.globalStyles';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -15,7 +16,7 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  mode: 'light',
+  mode: 'dark',
   toggleMode: () => {},
 });
 
@@ -34,7 +35,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
-  const [mode, setMode] = useState<ThemeMode>('light');
+  const [mode, setMode] = useState<ThemeMode>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -44,9 +45,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     if (savedMode === 'light' || savedMode === 'dark') {
       setMode(savedMode);
     } else {
-      
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setMode(prefersDark ? 'dark' : 'light');
+      // Default to dark mode
+      setMode('dark');
     }
   }, []);
 
@@ -58,41 +58,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
   };
 
   
-  const theme = mounted ? (mode === 'dark' ? darkTheme : lightTheme) : lightTheme;
+  const theme = mounted ? (mode === 'dark' ? darkTheme : lightTheme) : darkTheme;
 
   return (
     <ThemeContext.Provider value={{ mode, toggleMode }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <GlobalStyles
-          styles={{
-            '*': {
-              boxSizing: 'border-box',
-            },
-            html: {
-              width: '100%',
-              height: '100%',
-              margin: 0,
-              padding: 0,
-              WebkitTextSizeAdjust: '100%',
-              msTextSizeAdjust: '100%',
-            },
-            body: {
-              width: '100%',
-              minHeight: '100dvh',
-              margin: 0,
-              padding: 0,
-              WebkitFontSmoothing: 'antialiased',
-              MozOsxFontSmoothing: 'grayscale',
-              backgroundColor: theme.palette.background.default,
-              color: theme.palette.text.primary,
-            },
-            '#__next': {
-              width: '100%',
-              minHeight: '100dvh',
-            },
-          }}
-        />
+        <GlobalStyles styles={globalStyles(theme)} />
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </ThemeProvider>
     </ThemeContext.Provider>

@@ -12,8 +12,22 @@ async function bootstrap() {
     })
   );
   app.enableCors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      const allowedOrigins = process.env.CLIENT_URL 
+        ? process.env.CLIENT_URL.split(',')
+        : [];
+      // Allow localhost on any port in development
+      if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+        callback(null, true);
+      } else if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
   const port = process.env.PORT || 3001;
   await app.listen(port);

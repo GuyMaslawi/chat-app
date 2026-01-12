@@ -36,6 +36,13 @@ function UserListComponent({ participants, onlineUsers, currentUserId, onUserCli
       <List sx={styles.list}>
         {users.map((user) => {
           const isCurrentUser = user.userId === currentUserId;
+          const displayName = user.name || user.username;
+          const avatarInitials = displayName
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
           return (
             <ListItem key={user.userId} disablePadding sx={styles.listItem}>
               <ListItemButton
@@ -46,17 +53,23 @@ function UserListComponent({ participants, onlineUsers, currentUserId, onUserCli
                 <Box sx={styles.userInfo}>
                   <Box sx={styles.avatarContainer}>
                     <Avatar
+                      src={user.photoUrl}
+                      alt={displayName}
                       sx={{
                         ...styles.avatar,
-                        backgroundColor: user.isOnline
-                          ? (theme.palette.mode === 'dark'
-                            ? 'rgba(16, 185, 129, 0.2)'
-                            : 'rgba(16, 185, 129, 0.1)')
-                          : undefined,
-                        color: user.isOnline ? '#10b981' : theme.palette.text.secondary,
+                        backgroundColor: user.photoUrl
+                          ? undefined
+                          : (user.isOnline
+                            ? (theme.palette.mode === 'dark'
+                              ? 'rgba(16, 185, 129, 0.2)'
+                              : 'rgba(16, 185, 129, 0.1)')
+                            : undefined),
+                        color: user.photoUrl
+                          ? undefined
+                          : (user.isOnline ? '#10b981' : theme.palette.text.secondary),
                       }}
                     >
-                      {user.username.charAt(0).toUpperCase()}
+                      {!user.photoUrl && avatarInitials}
                     </Avatar>
                     <CircleIcon
                       sx={{
@@ -74,7 +87,7 @@ function UserListComponent({ participants, onlineUsers, currentUserId, onUserCli
                         color: isCurrentUser ? theme.palette.text.secondary : theme.palette.text.primary,
                       }}
                     >
-                      {user.username}
+                      {displayName}
                       {isCurrentUser && (
                         <Box component="span" sx={{ opacity: 0.7, marginLeft: 0.5 }}>
                           (You)

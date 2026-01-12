@@ -1,19 +1,28 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { Box, TextField, Button, Typography, Alert } from '@mui/material';
+import { Box, Button, Typography, Alert } from '@mui/material';
 import { authApi } from '@/lib/api';
 import { setToken } from '@/lib/auth';
+import { Input } from '@/components/shared/Input';
+import { registerSchema, RegisterFormData } from './RegisterForm.schema';
 import { styles } from './RegisterForm.sx';
 
-export function RegisterForm() {
+function RegisterFormComponent() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const {
+    control,
+    handleSubmit,
+    setError: setFormError,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { username: '', email: '', password: '' },
+  });
 
   const mutation = useMutation({
     mutationFn: authApi.register,
@@ -22,31 +31,20 @@ export function RegisterForm() {
       router.push('/rooms');
     },
     onError: (err: { message: string }) => {
-      setError(err.message);
+      setFormError('root', { message: err.message });
     },
   });
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    mutation.mutate({ username, email, password });
-  }, [username, email, password, mutation]);
+  const onSubmit = useCallback(
+    (data: RegisterFormData) => {
+      mutation.mutate(data);
+    },
+    [mutation]
+  );
 
   const handleNavigateToLogin = useCallback(() => {
     router.push('/login');
   }, [router]);
-
-  const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
-  }, []);
-
-  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  }, []);
-
-  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  }, []);
 
   return (
     <Box sx={styles.container}>
@@ -57,45 +55,39 @@ export function RegisterForm() {
         <Typography variant="body2" sx={styles.subtitle}>
           Join the conversation and start chatting
         </Typography>
-        {error && (
+        {errors.root && (
           <Alert severity="error" sx={styles.alert}>
-            {error}
+            {errors.root.message}
           </Alert>
         )}
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            name="username"
+            control={control}
             label="Username"
-            value={username}
-            onChange={handleUsernameChange}
-            required
             sx={styles.field}
             autoComplete="username"
           />
-          <TextField
-            fullWidth
+          <Input
+            name="email"
+            control={control}
             label="Email"
             type="email"
-            value={email}
-            onChange={handleEmailChange}
-            required
             sx={styles.field}
             autoComplete="email"
           />
-          <TextField
-            fullWidth
+          <Input
+            name="password"
+            control={control}
             label="Password"
             type="password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
             sx={styles.field}
             autoComplete="new-password"
           />
           <Button type="submit" variant="contained" fullWidth sx={styles.button} disabled={mutation.isPending}>
             {mutation.isPending ? 'Creating account...' : 'Create Account'}
           </Button>
-        </form>
+        </Box>
         <Button onClick={handleNavigateToLogin} sx={styles.linkButton} fullWidth>
           Already have an account? Sign In
         </Button>
@@ -104,3 +96,4 @@ export function RegisterForm() {
   );
 }
 
+export const RegisterForm = memo(RegisterFormComponent);

@@ -33,6 +33,7 @@ import { getCurrentUserId } from '@/components/RoomsList/RoomsList.utils';
 import { logout } from '@/lib/auth';
 import { UserList } from './UserList';
 import { DarkModeToggle } from '@/components/DarkModeToggle/DarkModeToggle';
+import { UserProfile } from '@/components/UserProfile';
 import { styles } from './ChatRoom.sx';
 import { lightModeColors, darkModeColors } from '@/lib/colors';
 import {
@@ -306,6 +307,7 @@ export function ChatRoom({ roomId, onBack }: ChatRoomProps) {
             </IconButton>
           </>
         )}
+        <UserProfile />
         <DarkModeToggle />
         <Button
           startIcon={<LogoutIcon />}

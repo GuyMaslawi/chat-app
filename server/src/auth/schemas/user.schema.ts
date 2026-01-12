@@ -18,7 +18,7 @@ export class User extends Document {
   @Prop({ required: false })
   photoUrl?: string;
 
-  @Prop({ required: false, enum: ['local', 'google', 'microsoft'] })
+  @Prop({ required: false, enum: ['local', 'google'] })
   provider?: string;
 
   @Prop({ required: false })

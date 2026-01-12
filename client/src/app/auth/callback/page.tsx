@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, Skeleton, Stack, Typography } from '@mui/material';
 import { setToken } from '@/lib/auth';
+import { styles } from './page.sx';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -20,18 +21,14 @@ export default function AuthCallbackPage() {
   }, [searchParams, router]);
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        gap: 2,
-      }}
-    >
-      <CircularProgress />
-      <Typography variant="body1">Completing authentication...</Typography>
+    <Box sx={styles.container}>
+      <Stack spacing={2} sx={styles.stack}>
+        <Skeleton variant="circular" width={64} height={64} />
+        <Skeleton variant="text" width="60%" height={32} />
+        <Typography variant="body1" sx={styles.text}>
+          Completing authentication...
+        </Typography>
+      </Stack>
     </Box>
   );
 }

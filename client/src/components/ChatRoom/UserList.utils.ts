@@ -1,12 +1,14 @@
 export interface User {
   userId: string;
   username: string;
+  name?: string;
+  photoUrl?: string;
   isOnline: boolean;
 }
 
 export function buildUsersList(
   participants: string[],
-  onlineUsers: { userId: string; username: string }[],
+  onlineUsers: { userId: string; username: string; name?: string; photoUrl?: string }[],
   isLobby: boolean
 ): User[] {
   const onlineUserIds = new Set(onlineUsers.map((u) => u.userId));
@@ -15,6 +17,8 @@ export function buildUsersList(
     return onlineUsers.map((onlineUser) => ({
       userId: onlineUser.userId,
       username: onlineUser.username,
+      name: onlineUser.name,
+      photoUrl: onlineUser.photoUrl,
       isOnline: true,
     }));
   }
@@ -24,6 +28,8 @@ export function buildUsersList(
     return {
       userId: participantId,
       username: onlineUser?.username || `User ${participantId.slice(0, 6)}`,
+      name: onlineUser?.name,
+      photoUrl: onlineUser?.photoUrl,
       isOnline: onlineUserIds.has(participantId),
     };
   });

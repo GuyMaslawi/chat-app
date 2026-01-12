@@ -93,6 +93,24 @@ export class AuthService {
     };
   }
 
+  async refreshToken(userId: string) {
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const payload = {
+      sub: user._id.toString(),
+      username: user.username || user.name || user.email.split('@')[0],
+      email: user.email,
+      name: user.name,
+      photoUrl: user.photoUrl,
+    };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
   async validateOAuthUser(oauthData: {
     email: string;
     name?: string;

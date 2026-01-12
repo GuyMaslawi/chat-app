@@ -23,6 +23,8 @@ export interface Room {
 export interface OnlineUser {
   userId: string;
   username: string;
+  name?: string;
+  photoUrl?: string;
   socketId: string;
 }
 
@@ -34,9 +36,14 @@ export interface Message {
   createdAt: string;
 }
 
+export interface RefreshResponse {
+  access_token: string;
+}
+
 export const authApi = {
   register: (data: RegisterDto) => apiClient.post<AuthResponse>('/auth/register', data),
   login: (data: LoginDto) => apiClient.post<AuthResponse>('/auth/login', data),
+  refresh: () => apiClient.post<RefreshResponse>('/auth/refresh'),
 };
 
 export const roomsApi = {

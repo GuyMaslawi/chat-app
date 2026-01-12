@@ -146,5 +146,15 @@ export const styles: Record<string, SxProps<Theme>> = {
       backgroundColor: 'rgba(99, 102, 241, 0.08)',
     },
   },
+  divider: {
+    my: 2,
+    '&::before, &::after': {
+      borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.12)',
+    },
+    '& .MuiDivider-wrapper': {
+      color: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+      fontSize: '0.875rem',
+      fontWeight: 500,
+    },
+  },
 };
-

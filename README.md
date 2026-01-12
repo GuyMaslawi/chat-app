@@ -22,7 +22,14 @@ npm install
 PORT=3001
 MONGODB_URI=mongodb://localhost:27017/chat-app
 JWT_SECRET=your-secret-key-change-in-production
-JWT_EXPIRES_IN=7d
+JWT_EXPIRES_IN=10m
+SERVER_URL=http://localhost:3001
+CLIENT_URL=http://localhost:3000
+
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:3001/auth/google/callback
 ```
 
 **Client** (`client/.env.local`):

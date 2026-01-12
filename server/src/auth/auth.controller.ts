@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Request, Response } from 'express';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +24,13 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Post('refresh')
+  @UseGuards(JwtAuthGuard)
+  async refresh(@Req() req: Request) {
+    const user = req.user as { id: string };
+    return this.authService.refreshToken(user.id);
+  }
+
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth() {
@@ -37,32 +45,13 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
     const result = req.user as any;
+    const clientUrl = this.configService.get<string>('CLIENT_URL') || 'http://localhost:3000';
     if (!result || !result.access_token) {
-      return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=oauth_failed`);
+      return res.redirect(`${clientUrl}/login?error=oauth_failed`);
     }
-    const redirectUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/callback?token=${result.access_token}`;
-    res.redirect(redirectUrl);
+    const redirectUrl = `${clientUrl}/auth/callback?token=${result.access_token}`;
+    return res.redirect(redirectUrl);
   }
 
-  @Get('microsoft')
-  @UseGuards(AuthGuard('microsoft'))
-  async microsoftAuth() {
-    const clientID = this.configService.get<string>('MICROSOFT_CLIENT_ID');
-    const clientSecret = this.configService.get<string>('MICROSOFT_CLIENT_SECRET');
-    if (!clientID || !clientSecret || clientID === 'dummy' || clientSecret === 'dummy') {
-      throw new BadRequestException('Microsoft OAuth is not configured');
-    }
-  }
-
-  @Get('microsoft/callback')
-  @UseGuards(AuthGuard('microsoft'))
-  async microsoftAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const result = req.user as any;
-    if (!result || !result.access_token) {
-      return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=oauth_failed`);
-    }
-    const redirectUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/callback?token=${result.access_token}`;
-    res.redirect(redirectUrl);
-  }
 }
 
